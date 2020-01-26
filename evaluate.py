@@ -4,12 +4,14 @@ import tensorflow as tf
 import numpy as np
 import random
 import sys
+import time
 
 from network import ActorCriticFFNetwork
 from training_thread import A3CTrainingThread
 from scene_loader import THORDiscreteEnvironment as Environment
 
 from utils.ops import sample_action
+from utils.tools import SimpleImageViewer
 
 from constants import ACTION_SIZE
 from constants import CHECKPOINT_DIR
@@ -58,6 +60,9 @@ if __name__ == '__main__':
       ep_lengths = []
       ep_collisions = []
 
+      viewer = SimpleImageViewer()
+      viewer.imshow(env.observation)
+
       scopes = [network_scope, scene_scope, task_scope]
 
       for i_episode in range(NUM_EVAL_EPISODES):
@@ -69,7 +74,6 @@ if __name__ == '__main__':
         ep_t = 0
 
         while not terminal:
-
           pi_values = global_network.run_policy(sess, env.s_t, env.target, scopes)
           action = sample_action(pi_values)
           env.step(action)
@@ -80,6 +84,9 @@ if __name__ == '__main__':
           if env.collided: ep_collision += 1
           ep_reward += env.reward
           ep_t += 1
+
+          viewer.imshow(env.observation)
+          time.sleep(0.1)
 
         ep_lengths.append(ep_t)
         ep_rewards.append(ep_reward)
