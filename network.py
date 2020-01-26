@@ -147,7 +147,6 @@ class ActorCriticFFNetwork(ActorCriticNetwork):
     self.b_value = dict()
 
     with tf.device(self._device):
-
       # state (input)
       self.s = tf.placeholder("float", [None, 2048, 4])
 
