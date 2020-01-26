@@ -88,12 +88,12 @@ class ActorCriticNetwork(object):
   def _fc_weight_variable(self, shape, name='W_fc'):
     input_channels = shape[0]
     d = 1.0 / np.sqrt(input_channels)
-    initial = tf.compat.v1.random_uniform(shape, minval=-d, maxval=d)
+    initial = tf.random_uniform(shape, minval=-d, maxval=d)
     return tf.Variable(initial, name=name)
 
   def _fc_bias_variable(self, shape, input_channels, name='b_fc'):
     d = 1.0 / np.sqrt(input_channels)
-    initial = tf.compat.v1.random_uniform(shape, minval=-d, maxval=d)
+    initial = tf.random_uniform(shape, minval=-d, maxval=d)
     return tf.Variable(initial, name=name)
 
   def _conv_weight_variable(self, shape, name='W_conv'):
@@ -101,12 +101,12 @@ class ActorCriticNetwork(object):
     h = shape[1]
     input_channels = shape[2]
     d = 1.0 / np.sqrt(input_channels * w * h)
-    initial = tf.compat.v1.random_uniform(shape, minval=-d, maxval=d)
+    initial = tf.random_uniform(shape, minval=-d, maxval=d)
     return tf.Variable(initial, name=name)
 
   def _conv_bias_variable(self, shape, w, h, input_channels, name='b_conv'):
     d = 1.0 / np.sqrt(input_channels * w * h)
-    initial = tf.compat.v1.random_uniform(shape, minval=-d, maxval=d)
+    initial = tf.random_uniform(shape, minval=-d, maxval=d)
     return tf.Variable(initial, name=name)
 
   def _conv2d(self, x, W, stride):
@@ -148,15 +148,13 @@ class ActorCriticFFNetwork(ActorCriticNetwork):
 
     with tf.device(self._device):
 
-      tf.compat.v1.disable_eager_execution()
-
       # state (input)
-      self.s = tf.compat.v1.placeholder("float", [None, 2048, 4])
+      self.s = tf.placeholder("float", [None, 2048, 4])
 
       # target (input)
-      self.t = tf.compat.v1.placeholder("float", [None, 2048, 4])
+      self.t = tf.placeholder("float", [None, 2048, 4])
 
-      with tf.compat.v1.variable_scope(network_scope):
+      with tf.variable_scope(network_scope):
         # network key
         key = network_scope
 
@@ -181,7 +179,7 @@ class ActorCriticFFNetwork(ActorCriticNetwork):
           # scene-specific key
           key = self._get_key([network_scope, scene_scope])
 
-          with tf.compat.v1.variable_scope(scene_scope):
+          with tf.variable_scope(scene_scope):
 
             # scene-specific adaptation layer
             self.W_fc3[key] = self._fc_weight_variable([512, 512])

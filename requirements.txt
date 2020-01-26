@@ -2,5 +2,3 @@ scikit-image
 h5py
 numpy>=1.10.4
 pyglet>=1.2.0
-tensorflow
-ai2thor
