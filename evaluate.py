@@ -75,29 +75,29 @@ def main():
             while not terminal and ep_t != 10000:
                 # TODO: add remaining actions
                 # TODO: randomly choose from these actions, don't just loop through them
-                all_actions = ["RotateRight", "RotateLeft", "MoveAhead"]
+                action = random.choice(["RotateRight", "RotateLeft", "MoveAhead"])
+                # TODO: implement new policy function
 
                 # # NOTE: old action choosing code
                 # pi_values = global_network.run_policy(sess, env.s_t, env.target, scopes)
                 # action = sample_action(pi_values)
 
-                for action in all_actions:
-                    # TODO: pick targets/terminal states (need the target image)
-                    # TODO: go through old code and figure out how to check for terminal state image
-                    env.step(action)
-                    # TODO: update the state
-                    # env.update()    # # evaluates to self.s_t = self.s_t1
+                # TODO: pick targets/terminal states (need the target image)
+                # TODO: go through old code and figure out how to check for terminal state image
+                env.step(action)
+                # TODO: update the state
+                # env.update()    # # evaluates to self.s_t = self.s_t1
 
-                    # TODO: check for terminal position
-                    # terminal = env.terminal
-                    if terminal or ep_t == 10000:
-                        break
-                    # if ep_t == 10000: break
-                    # TODO: go through old code and figure out how to check that we've collided
-                    # if env.collided: ep_collision += 1
-                    # TODO: move all reward-related code from old code to here
-                    # ep_reward += env.reward
-                    ep_t += 1
+                # TODO: check for terminal position
+                # terminal = env.terminal
+                if terminal or ep_t == 10000:
+                    break
+                # if ep_t == 10000: break
+                # TODO: go through old code and figure out how to check that we've collided
+                # if env.collided: ep_collision += 1
+                # TODO: move all reward-related code from old code to here
+                # ep_reward += env.reward
+                ep_t += 1
 
     # while True:
 
