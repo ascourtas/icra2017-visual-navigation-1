@@ -111,6 +111,7 @@ class A3CTrainingThread(object):
     if self.env is None:
       # lazy evaluation
       time.sleep(self.thread_index*1.0)
+      # TODO: update to AI2THOR
       self.env = Environment({
         'scene_name': self.scene_scope,
         'terminal_state_id': int(self.task_scope)
