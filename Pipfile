@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+scikit-image = "*"
+h5py = "*"
+numpy = ">=1.10.4"
+pyglet = ">=1.2.0"
+tensorflow = "==1.0"
+ai2thor = "*"
+requirements-txt = "*"
+
+[requires]
+python_version = "3.5"
