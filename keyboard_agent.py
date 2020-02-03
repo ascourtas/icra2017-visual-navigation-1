@@ -6,10 +6,14 @@ import sys
 import signal
 import argparse
 import numpy as np
+import json
 
 # from scene_loader import THORDiscreteEnvironment
 from utils.tools import SimpleImageViewer
 import ai2thor.controller
+import cv2
+
+GRID_SIZE = 0.25
 
 #
 # Navigate the scene using your keyboard
@@ -17,7 +21,7 @@ import ai2thor.controller
 
 def key_press(key, mod):
 
-  global human_agent_action, human_wants_restart, stop_requested
+  global human_agent_action, human_wants_restart, stop_requested, take_picture
 
   # Browser actions
   if key == ord('R') or key == ord('r'): # r/R - Restart
@@ -41,11 +45,16 @@ def key_press(key, mod):
   if key == 113: # q/Q - Rotate Camera Left
     human_agent_action = "RotateLeft"
 
+  # Print view
+  if key == 112: # p/P - Print view
+    take_picture = True
+
 def rollout(event, controller, viewer):
 
-  global human_agent_action, human_wants_restart, stop_requested
+  global human_agent_action, human_wants_restart, stop_requested, take_picture
   human_agent_action = None
   human_wants_restart = False
+  take_picture = False
   while True:
     # waiting for keyboard input
     if human_agent_action is not None:
@@ -66,6 +75,17 @@ def rollout(event, controller, viewer):
 
     # check quit command
     if stop_requested: break
+
+    if take_picture:
+      current_image = event.cv2image()
+      cv2.imwrite("data/FP227_goal_TV.png", current_image)
+      json_dict = {}
+      agent_position = event.metadata["agent"]["position"]
+      json_dict["grid_size"] = GRID_SIZE
+      json_dict["agent_position"] = agent_position
+
+      with open('data/FP227_goal_TV.json', 'w') as outfile:
+        json.dump(json_dict, outfile)
 
     viewer.imshow(event.frame)
 
