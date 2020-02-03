@@ -21,7 +21,7 @@ GRID_SIZE = 0.25
 
 def key_press(key, mod):
 
-  global human_agent_action, human_wants_restart, stop_requested, take_picture
+  global human_agent_action, human_wants_restart, stop_requested, take_picture, invert_view
 
   # Browser actions
   if key == ord('R') or key == ord('r'): # r/R - Restart
@@ -45,16 +45,21 @@ def key_press(key, mod):
   if key == 113: # q/Q - Rotate Camera Left
     human_agent_action = "RotateLeft"
 
-  # Print view
+  # View actions
   if key == 112: # p/P - Print view
     take_picture = True
+  if key == 105: # i/I - Switch between RGB and Depth views
+    invert_view = not invert_view
+
 
 def rollout(event, controller, viewer):
 
-  global human_agent_action, human_wants_restart, stop_requested, take_picture
+  global human_agent_action, human_wants_restart, stop_requested, take_picture, invert_view
   human_agent_action = None
   human_wants_restart = False
+  stop_requested = False
   take_picture = False
+  invert_view = False
   while True:
     # waiting for keyboard input
     if human_agent_action is not None:
@@ -87,16 +92,21 @@ def rollout(event, controller, viewer):
       with open('data/FP227_goal_TV.json', 'w') as outfile:
         json.dump(json_dict, outfile)
 
-    viewer.imshow(event.frame)
+    if invert_view and event.depth_frame is not None:
+      viewer.imshow(np.repeat(event.depth_frame[:, :, np.newaxis], 3, axis=2).astype("uint8"))
+    else:
+      viewer.imshow(event.frame)
 
 if __name__ == '__main__':
 
-  controller = ai2thor.controller.Controller(scene='FloorPlan227', gridSize=0.25, width=1000, height=1000);
+  controller = ai2thor.controller.Controller(scene='FloorPlan227', gridSize=0.25, width=1000, height=1000, renderDepthImage=True);
   event = controller.step(action='Pass') # Perform no action
 
   human_agent_action = None
   human_wants_restart = False
   stop_requested = False
+  take_picture = False
+  invert_view = False
 
   viewer = SimpleImageViewer()
   viewer.imshow(event.frame)
@@ -104,6 +114,8 @@ if __name__ == '__main__':
 
   print("Use WASD keys to move the agent.")
   print("Use QE keys to move the camera.")
+  print("Press I to switch between RGB and Depth views.")
+  print("Press P to save an image of the current view.")
   print("Press R to reset agent\'s location.")
   print("Press F to quit.")
 
