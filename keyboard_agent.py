@@ -83,6 +83,7 @@ if __name__ == '__main__':
   viewer.window.on_key_press = key_press
 
   print("Use WASD keys to move the agent.")
+  print("Use QE keys to move the camera.")
   print("Press R to reset agent\'s location.")
   print("Press F to quit.")
 
