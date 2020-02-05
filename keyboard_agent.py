@@ -93,7 +93,8 @@ def rollout(event, controller, viewer):
         json.dump(json_dict, outfile)
 
     if invert_view and event.depth_frame is not None:
-      viewer.imshow(np.repeat(event.depth_frame[:, :, np.newaxis], 3, axis=2).astype("uint8"))
+      img = np.repeat(event.depth_frame[:, :, np.newaxis], 1, axis=2).astype("uint8") # TODO: Fix display of depth image. Potentially a viewer problem?
+      viewer.imshow(img)
     else:
       viewer.imshow(event.frame)
 
