@@ -38,17 +38,7 @@ class RLController :
         if curr_pos == self.goal_pos:
             self.terminal = True
 
-        # TODO: Implement collision code
-        # if self.terminals[self.current_state_id]:
-        #     self.terminal = True
-        #     self.collided = False
-        # else:
-        #     self.terminal = False
-        #     self.collided = False
-        # else:
-        #     self.terminal = False
-        #     self.collided = True
-
+        self.collided = event.metadata["collided"]
         self.reward = self._reward()
 
         # TODO: Integrate with training thread

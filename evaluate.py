@@ -94,8 +94,8 @@ def main():
 
                 terminal = env.terminal
                 if ep_t == 10000: break
-                # TODO: go through old code and figure out how to check that we've collided
-                # if env.collided: ep_collision += 1
+
+                if env.collided: ep_collision += 1
                 ep_reward += env.reward
                 ep_t += 1
     # while True:
