@@ -15,8 +15,15 @@ class SimpleImageViewer(object):
       self.height = height
       self.isopen = True
 
-    assert arr.shape == (self.height, self.width, 3), "You passed in an image with the wrong number shape"
-    image = pyglet.image.ImageData(self.width, self.height, 'RGB', arr.tobytes(), pitch=self.width * -3)
+    #assert arr.shape == (self.height, self.width, 3), "You passed in an image with the wrong number shape"
+    assert arr.shape[0] == self.height
+    assert arr.shape[1] == self.width
+    if arr.shape[2] == 1:
+      image = pyglet.image.ImageData(self.width, self.height, 'I', arr.tobytes(), pitch=self.width * -1)
+    elif arr.shape[2] == 3:
+      image = pyglet.image.ImageData(self.width, self.height, 'RGB', arr.tobytes(), pitch=self.width * -3)
+    else:
+      assert False, "Number of channels passed is not supported."
     self.window.clear()
     self.window.switch_to()
     self.window.dispatch_events()

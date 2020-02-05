@@ -12,6 +12,7 @@ numpy = ">=1.10.4"
 pyglet = ">=1.2.0"
 tensorflow = "*"
 ai2thor = "*"
+opencv-python = "*"
 
 [requires]
 python_version = "3.7"

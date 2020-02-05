@@ -8,6 +8,7 @@ import tensorflow.compat.v1 as tf
 import numpy as np
 import random
 import sys
+import json
 
 from network import ActorCriticFFNetwork
 from training_thread import A3CTrainingThread
@@ -22,6 +23,8 @@ from constants import VERBOSE
 from constants import TASK_TYPE
 from constants import TASK_LIST
 
+GOAL_FILE = "data/FP227_goal_TV.json"
+GOAL_STATE = None
 
 def main():
     # disable all v2 behavior
@@ -56,11 +59,14 @@ def main():
     for scene_scope in scene_scopes:
         scene_stats[scene_scope] = []
         # tasks are positions!!!
-        env = ai2thor.controller.Controller(scene=scene_scope, gridSize=0.25, width=1000, height=1000)
+        env = ai2thor.controller.Controller(scene="FloorPlan227", gridSize=0.25, width=1000, height=1000)
         ep_rewards = []
         ep_lengths = []
         ep_collisions = []
+        with open(GOAL_FILE, 'r') as f:
+            GOAL_DATA = json.load(f)
 
+        GOAL_STATE = GOAL_DATA["agent_position"]
         scopes = [network_scope, scene_scope]
 
         for i_episode in range(NUM_EVAL_EPISODES):
@@ -84,9 +90,11 @@ def main():
 
                 # TODO: pick targets/terminal states (need the target image)
                 # TODO: go through old code and figure out how to check for terminal state image
-                env.step(action)
+                event = env.step(action)
                 # TODO: update the state
                 # env.update()    # # evaluates to self.s_t = self.s_t1
+                if event.metadata["agent"]["position"] == GOAL_STATE:
+                    terminal = True
 
                 # TODO: check for terminal position
                 # terminal = env.terminal
@@ -98,7 +106,6 @@ def main():
                 # TODO: move all reward-related code from old code to here
                 # ep_reward += env.reward
                 ep_t += 1
-
     # while True:
 
 
