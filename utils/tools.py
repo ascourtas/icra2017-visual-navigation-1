@@ -16,9 +16,14 @@ class SimpleImageViewer(object):
       self.isopen = True
 
     #assert arr.shape == (self.height, self.width, 3), "You passed in an image with the wrong number shape"
+    # TODO: cleanup
     assert arr.shape[0] == self.height
     assert arr.shape[1] == self.width
-    if arr.shape[2] == 1:
+    # print("Shape is {}".format(arr.shape))
+    if len(arr.shape) == 2:
+      # TODO: the pitch should be equal to the number of bytes in each row -- these are floats, is that the issue?
+      image = pyglet.image.ImageData(self.width, self.height, 'I', arr.tobytes(), pitch=self.width * -1)
+    elif arr.shape[2] == 1:
       image = pyglet.image.ImageData(self.width, self.height, 'I', arr.tobytes(), pitch=self.width * -1)
     elif arr.shape[2] == 3:
       image = pyglet.image.ImageData(self.width, self.height, 'RGB', arr.tobytes(), pitch=self.width * -3)

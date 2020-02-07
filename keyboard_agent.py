@@ -93,8 +93,11 @@ def rollout(event, controller, viewer):
         json.dump(json_dict, outfile)
 
     if invert_view and event.depth_frame is not None:
-      img = np.repeat(event.depth_frame[:, :, np.newaxis], 1, axis=2).astype("uint8") # TODO: Fix display of depth image. Potentially a viewer problem?
-      viewer.imshow(img)
+      depth_image = event.depth_frame
+      # scale to be 0-255
+      depth_image /= np.max(depth_image)
+      depth_image *= 255
+      viewer.imshow(depth_image.astype("uint8")) # cast as an int to ensure proper number of bytes
     else:
       viewer.imshow(event.frame)
 
