@@ -128,7 +128,7 @@ class ActorCriticFFNetwork(ActorCriticNetwork):
                scene_scopes=["scene"]):
     ActorCriticNetwork.__init__(self, action_size, device)
 
-    self.pi = dict()
+    self.pi = dict()  # a dict for policies for all the different scenes
     self.v = dict()
 
     self.W_fc1 = dict()
@@ -208,7 +208,7 @@ class ActorCriticFFNetwork(ActorCriticNetwork):
     return (pi_out[0], v_out[0])
 
   def run_policy(self, sess, state, target, scopes):
-    k = self._get_key(scopes[:2])
+    k = self._get_key(scopes[:2]) # Always 'navigation' + [scene name]
     pi_out = sess.run( self.pi[k], feed_dict = {self.s : [state], self.t: [target]} )
     return pi_out[0]
 

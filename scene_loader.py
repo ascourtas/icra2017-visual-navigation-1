@@ -95,8 +95,8 @@ class THORDiscreteEnvironment(object):
 
   def _tiled_state(self, state_id):
     k = random.randrange(self.n_feat_per_locaiton)
-    f = self.h5_file['resnet_feature'][state_id][k][:,np.newaxis]
-    return np.tile(f, (1, self.history_length))
+    f = self.h5_file['resnet_feature'][state_id][k][:,np.newaxis] # f is some portion of the RestNet features
+    return np.tile(f, (1, self.history_length)) # Repeats f (1, self.history_length) times
 
   def _reward(self, terminal, collided):
     # positive reward upon task completion

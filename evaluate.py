@@ -33,7 +33,7 @@ def main():
     tf.disable_eager_execution()
 
     device = "/cpu:0"  # use CPU for display tool
-    network_scope = TASK_TYPE
+    network_scope = TASK_TYPE # Always 'navigation'
     list_of_tasks = TASK_LIST
     scene_scopes = list_of_tasks.keys()
 
@@ -59,47 +59,51 @@ def main():
     scene_stats = dict()
     for scene_scope in scene_scopes:
         scene_stats[scene_scope] = []
-        # tasks are positions!!!
-        # env = ai2thor.controller.Controller(scene="FloorPlan227", gridSize=0.25, width=1000, height=1000)
-        with open(GOAL_FILE, 'r') as f:
-            GOAL_DATA = json.load(f)
+        for task_scope in list_of_tasks[scene_scope]:
+            # tasks are positions!!!
+            # env = ai2thor.controller.Controller(scene="FloorPlan227", gridSize=0.25, width=1000, height=1000)
+            with open(GOAL_FILE, 'r') as f:
+                GOAL_DATA = json.load(f)
 
-        GOAL_POS = GOAL_DATA["agent_position"]
-        env = RLController(scene="FloorPlan227", goal_pos=GOAL_POS)
-        ep_rewards = []
-        ep_lengths = []
-        ep_collisions = []
+            GOAL_POS = GOAL_DATA["agent_position"]
+            env = RLController({
+                'scene': scene_scope,
+                'terminal_state_id': int(task_scope),
+                'goal_pos': GOAL_POS
+            })
+            ep_rewards = []
+            ep_lengths = []
+            ep_collisions = []
 
-        scopes = [network_scope, scene_scope]
+            scopes = [network_scope, scene_scope]
 
-        for i_episode in range(NUM_EVAL_EPISODES):
-            env.reset()
+            for i_episode in range(NUM_EVAL_EPISODES):
+                env.reset()
 
-            terminal = False
-            ep_reward = 0
-            ep_collision = 0
-            ep_t = 0
+                terminal = False
+                ep_reward = 0
+                ep_collision = 0
+                ep_t = 0
 
-            while not terminal:
-                # TODO: add remaining actions
-                action = random.choice(["RotateRight", "RotateLeft", "MoveAhead"])
-                # TODO: implement new policy function
+                while not terminal:
+                    # TODO: add remaining actions
+                    # action = random.choice(["RotateRight", "RotateLeft", "MoveAhead"])
+                    list_of_actions = ["MoveAhead", "MoveBack", "RotateLeft", "RotateRight"]
+                    # TODO: implement new policy function
 
-                # # NOTE: old action choosing code
-                # pi_values = global_network.run_policy(sess, env.s_t, env.target, scopes)
-                # action = sample_action(pi_values)
+                    # # NOTE: old action choosing code
+                    pi_values = global_network.run_policy(sess, env.curr_state, env.target, scopes)
+                    action = sample_action(pi_values)
 
-                env.step(action)
-                env.update()
+                    env.step(list_of_actions[action])
+                    env.update()
 
-                terminal = env.terminal
-                if ep_t == 10000: break
+                    terminal = env.terminal
+                    if ep_t == 10000: break
 
-                if env.collided: ep_collision += 1
-                ep_reward += env.reward
-                ep_t += 1
-    # while True:
-
+                    if env.collided: ep_collision += 1
+                    ep_reward += env.reward
+                    ep_t += 1
 
 if __name__ == "__main__":
     main()
