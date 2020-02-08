@@ -86,13 +86,13 @@ def main():
                 ep_t = 0
 
                 while not terminal:
-                    # TODO: add remaining actions
                     # action = random.choice(["RotateRight", "RotateLeft", "MoveAhead"])
+                    # mirrors actions taken in paper
                     list_of_actions = ["MoveAhead", "MoveBack", "RotateLeft", "RotateRight"]
-                    # TODO: implement new policy function
 
                     # # NOTE: old action choosing code
                     pi_values = global_network.run_policy(sess, env.curr_state, env.target, scopes)
+                    # action returned is an integer
                     action = sample_action(pi_values)
 
                     env.step(list_of_actions[action])
@@ -104,6 +104,7 @@ def main():
                     if env.collided: ep_collision += 1
                     ep_reward += env.reward
                     ep_t += 1
+                print("we're done")
 
 if __name__ == "__main__":
     main()

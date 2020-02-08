@@ -73,6 +73,7 @@ class THORDiscreteEnvironment(object):
   def step(self, action):
     assert not self.terminal, 'step() called in terminal state'
     k = self.current_state_id
+    # TODO: figure out what the hell determines these ids
     if self.transition_graph[k][action] != -1:
       self.current_state_id = self.transition_graph[k][action]
       if self.terminals[self.current_state_id]:

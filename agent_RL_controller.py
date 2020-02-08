@@ -48,17 +48,19 @@ class RLController :
         assert not self.terminal, 'step() called in terminal state'
         curr_pos = event.metadata["agent"]["position"]
 
+        # TODO: this will never be reached in current code due to goal position not being in all scenes;
+        #  need to figure out key id system in OG code so we can either adopt it or can it
         if curr_pos == self.goal_pos:
             self.terminal = True
 
         self.collided = event.metadata["collided"]
         self.reward = self._reward()
 
-        # TODO: Integrate with training thread
+        # TODO: Make this work so we can actually learn
         # self.next_state = np.append(self.curr_state[:, 1:], self.state, axis=1)
 
     def update(self):
-        # TODO: Integrate with training thread
+        # TODO: Make this work so we can actually learn our policy
         # self.curr_state = self.next_state
         pass
 
@@ -76,3 +78,9 @@ class RLController :
     @property
     def target(self):
         return self.s_target
+
+    # @property
+    # def state(self):
+    #     # read from hdf5 cache
+    #     k = random.randrange(self.n_feat_per_locaiton)
+    #     return self.h5_file['resnet_feature'][self.current_state_id][k][:, np.newaxis]
