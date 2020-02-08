@@ -3,7 +3,6 @@ tmp/*
 old/*
 checkpoints*/*
 logs/*
-data/*.h5
 data/*.hdf5
 unity/*
 visualization
