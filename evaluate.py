@@ -69,7 +69,8 @@ def main():
             env = RLController({
                 'scene': scene_scope,
                 'terminal_state_id': int(task_scope),
-                'goal_pos': GOAL_POS
+                'goal_pos': GOAL_POS,
+                'goal_image_fpath': "data/FP227_goal_TV.png"
             })
             ep_rewards = []
             ep_lengths = []

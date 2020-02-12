@@ -124,6 +124,7 @@ class THORDiscreteEnvironment(object):
   @property
   def state(self):
     # read from hdf5 cache
+    # "we extracted 10 features from the proximity of each location coordinates -- we sampled a small Gaussian offset from the (x,y) coordinates"
     k = random.randrange(self.n_feat_per_locaiton)
     return self.h5_file['resnet_feature'][self.current_state_id][k][:,np.newaxis]
 
