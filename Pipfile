@@ -13,6 +13,7 @@ pyglet = ">=1.2.0"
 tensorflow = "*"
 ai2thor = "*"
 opencv-python = "*"
+keras = "*"
 
 [requires]
 python_version = "3.7"
