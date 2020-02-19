@@ -73,7 +73,7 @@ class THORDiscreteEnvironment(object):
   def step(self, action):
     assert not self.terminal, 'step() called in terminal state'
     k = self.current_state_id
-    # TODO: figure out what the hell determines these ids
+    # id are just the indexes through the states, that's all. each elem is a state
     if self.transition_graph[k][action] != -1:
       self.current_state_id = self.transition_graph[k][action]
       if self.terminals[self.current_state_id]:
@@ -87,6 +87,10 @@ class THORDiscreteEnvironment(object):
       self.collided = True
 
     self.reward = self._reward(self.terminal, self.collided)
+    # s_t here, the curr_state, is actually the state before the step. self.state returns the state after the step. some weird
+    #   combo of these is used to make s_t1 (the next state). Then after, step() is completed, update() is called  where
+    #   s_t <-- s_t1
+    # note that self.state() returns the ResNet feature, which is what we will need to get from the observation
     self.s_t1 = np.append(self.s_t[:,1:], self.state, axis=1)
 
   def update(self):
@@ -114,11 +118,11 @@ class THORDiscreteEnvironment(object):
 
   @property
   def action_definitions(self):
-    action_vocab = ["MoveForward", "RotateRight", "RotateLeft", "MoveBackward"]
+    action_vocab = ["MoveForward", "RotateRight", "RotateLeft", "MoveBackward"]  # TODO: whoops I think this is the order we want?
     return action_vocab[:ACTION_SIZE]
 
   @property
-  def observation(self):
+  def observation(self):  # this is the RGB image of the agent's first person view
     return self.h5_file['observation'][self.current_state_id]
 
   @property

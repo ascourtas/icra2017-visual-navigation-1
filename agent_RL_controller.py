@@ -55,6 +55,9 @@ class RLController :
         self.reward = 0
         self.collided = False
         self.terminal = False
+        # get current observation as current state -- TODO: is this right, or should it be random values?
+        event = self.env.step(action="Pass")
+        self.curr_state = self._tiled_state(state_image=event.frame)
 
     def step(self, action):
         event = self.env.step(action=action)
@@ -70,32 +73,27 @@ class RLController :
         self.collided = event.metadata["collided"]
         self.reward = self._reward()
 
-        # TODO: Make this work so we can actually learn
+        # TODO: update the "state" to the observation at where we've just stepped to
+
+        # critical in learning, I think
+        # TODO: need to change state() property
+        # the curr_state, is actually the state before the step. self.state returns the state after the step. some weird
+        #   combo of these is used to make s_t1 (the next state). Then after, step() is completed, update() is called  where
+        #   s_t <-- s_t1
+        # note that self.state() returns the ResNet feature, which is what we will need to get from the observation
+        self.state = event
         self.next_state = np.append(self.curr_state[:, 1:], self.state, axis=1)
+        print("biasdhaiu")
 
     def update(self):
-        # TODO: Make this work so we can actually learn our policy
         self.curr_state = self.next_state
-        pass
 
     def _tiled_state(self, state_image):
         # k = random.randrange(self.n_feat_per_locaiton)
         # f = self.h5_file['resnet_feature'][state_id][k][:, np.newaxis]  # f is some portion of the RestNet features
-        model = ka.resnet_v2.ResNet50V2(include_top=False, weights='imagenet', pooling='max', input_shape=(224, 224, 3))
+        # # get features from the state image
+        f = self._feature_for_image(state_image)
 
-        # get features from the state image
-        # TODO: figure out if combining keras and opencv is an issue
-        # TODO: figure out if this affects original numpy array
-        # TODO: figure out if interpolation fucks up the image
-        state_image = cv2.resize(state_image, dsize=(224, 224), interpolation=cv2.INTER_AREA)
-        # img = image.load_img(state_image_fpath, target_size=(224, 224))
-        state_image = image.img_to_array(state_image)
-        state_image = np.expand_dims(state_image, axis=0)
-        state_image = preprocess_input(state_image)
-        f = model.predict(state_image)
-        
-        # !!!!!! TODO: figure out if we need to flatten or not -- currently getting error about Tensor shape
-        # f = f.flatten()
         return np.tile(f, (1, self.history_length))  # Repeats f (1, self.history_length) times
 
     def _reward(self):
@@ -104,12 +102,35 @@ class RLController :
         # time penalty or collision penalty
         return -0.1 if self.collided else -0.01
 
+    def _feature_for_image(self, state_image):
+        model = ka.resnet_v2.ResNet50V2(include_top=False, weights='imagenet', pooling='max', input_shape=(224, 224, 3))
+
+        # get features from the state image
+        # TODO: figure out if combining keras and opencv is an issue
+        # TODO: figure out if this affects original numpy array
+        # TODO: figure out if interpolation fucks up the image
+        # size is due to size of ResNet feature
+        state_image = cv2.resize(state_image, dsize=(224, 224), interpolation=cv2.INTER_AREA)
+        # img = image.load_img(state_image_fpath, target_size=(224, 224))
+        state_image = image.img_to_array(state_image)
+        state_image = np.expand_dims(state_image, axis=0)
+        state_image = preprocess_input(state_image)
+        feature = model.predict(state_image)
+
+        return feature.T  # NOTE: currently returns (2048, 1) feature
+
     @property
     def target(self):
         return self.s_target
 
     @property
     def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, event):
         # read from hdf5 cache
-        k = random.randrange(self.n_feat_per_locaiton)
-        return self.h5_file['resnet_feature'][self.current_state_id][k][:, np.newaxis]
+        k = random.randrange(self.n_feat_per_locaiton)  # TODO: deal with this later
+        # return self.h5_file['resnet_feature'][self.current_state_id][k][:, np.newaxis]
+        feature = self._feature_for_image(event.frame)
+        self._state = feature

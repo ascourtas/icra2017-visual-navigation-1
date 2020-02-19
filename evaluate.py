@@ -87,15 +87,14 @@ def main():
                 ep_t = 0
 
                 while not terminal:
-                    # action = random.choice(["RotateRight", "RotateLeft", "MoveAhead"])
                     # mirrors actions taken in paper
-                    list_of_actions = ["MoveAhead", "MoveBack", "RotateLeft", "RotateRight"]
+                    # NOTE: rearranged these to mirror code in scene_loader
+                    list_of_actions = ["MoveAhead", "RotateRight", "RotateLeft", "MoveBack"]
 
-                    # # NOTE: old action choosing code
                     pi_values = global_network.run_policy(sess, env.curr_state, env.target, scopes)
-                    # action returned is an integer
+                    # action returned is an integer -- critical that the list_of_actions is in correct order
                     action = sample_action(pi_values)
-
+                    print("Ep_t: {} Action: {}".format(ep_t, list_of_actions[action]))
                     env.step(list_of_actions[action])
                     env.update()
 
