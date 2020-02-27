@@ -209,11 +209,6 @@ class ActorCriticFFNetwork(ActorCriticNetwork):
 
   def run_policy(self, sess, state, target, scopes):
     k = self._get_key(scopes[:2]) # Always 'navigation' + [scene name]
-    # NOTE: right now target is 4 times the length of the observation, maybe I need to tile it in reset()?
-    state_c = state.copy()
-    target_c = target.copy()
-    state = np.reshape(state, (2048, 4))
-    target = np.reshape(target, (2048, 4))
     pi_out = sess.run( self.pi[k], feed_dict = {self.s : [state], self.t: [target]} )
     return pi_out[0]
 

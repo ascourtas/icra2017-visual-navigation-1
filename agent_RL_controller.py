@@ -103,7 +103,9 @@ class RLController :
         return -0.1 if self.collided else -0.01
 
     def _feature_for_image(self, state_image):
-        model = ka.resnet_v2.ResNet50V2(include_top=False, weights='imagenet', pooling='max', input_shape=(224, 224, 3))
+        # TODO: should this be regular ResNet50?
+        # model = ka.resnet_v2.ResNet50V2(include_top=False, weights='imagenet', pooling='max', input_shape=(224, 224, 3))
+        model = ka.resnet.ResNet50(include_top=False, weights='imagenet', pooling='max', input_shape=(224, 224, 3))
 
         # get features from the state image
         # TODO: figure out if combining keras and opencv is an issue
