@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import ai2thor.controller
+from agent_RL_controller import RLController
+
 import tensorflow as tf
+# NOTE: necessary for only using v1 code
+import tensorflow.compat.v1 as tf
 import numpy as np
 import random
 import sys
-import time
+import json
+
 
 from network import ActorCriticFFNetwork
 from training_thread import A3CTrainingThread
-from scene_loader import THORDiscreteEnvironment as Environment
 
 from utils.ops import sample_action
 from utils.tools import SimpleImageViewer
@@ -21,81 +26,89 @@ from constants import VERBOSE
 from constants import TASK_TYPE
 from constants import TASK_LIST
 
-if __name__ == '__main__':
+GOAL_FILE = "data/FP227_goal_TV.json"
+GOAL_POS = None
 
-  device = "/cpu:0" # use CPU for display tool
-  network_scope = TASK_TYPE
-  list_of_tasks = TASK_LIST
-  scene_scopes = list_of_tasks.keys()
+def main():
+    # disable all v2 behavior
+    tf.disable_v2_behavior()
+    tf.disable_eager_execution()
 
-  global_network = ActorCriticFFNetwork(action_size=ACTION_SIZE,
-                                        device=device,
-                                        network_scope=network_scope,
-                                        scene_scopes=scene_scopes)
+    device = "/cpu:0"  # use CPU for display tool
+    network_scope = TASK_TYPE # Always 'navigation'
+    list_of_tasks = TASK_LIST
+    scene_scopes = list_of_tasks.keys()
 
-  sess = tf.Session()
-  init = tf.global_variables_initializer()
-  sess.run(init)
+    global_network = ActorCriticFFNetwork(action_size=ACTION_SIZE,
+                                          device=device,
+                                          network_scope=network_scope,
+                                          scene_scopes=scene_scopes)
+    sess = tf.Session()
+    # sess = tf.coSession()
+    init = tf.global_variables_initializer()
+    sess.run(init)
 
-  saver = tf.train.Saver()
-  checkpoint = tf.train.get_checkpoint_state(CHECKPOINT_DIR)
+    saver = tf.train.Saver()
+    checkpoint = tf.train.get_checkpoint_state(CHECKPOINT_DIR)
 
-  if checkpoint and checkpoint.model_checkpoint_path:
-    saver.restore(sess, checkpoint.model_checkpoint_path)
-    print("checkpoint loaded: {}".format(checkpoint.model_checkpoint_path))
-  else:
-    print("Could not find old checkpoint")
+    # see if we saved a checkpoint from past training?
+    if checkpoint and checkpoint.model_checkpoint_path:
+        saver.restore(sess, checkpoint.model_checkpoint_path)
+        print("checkpoint loaded: {}".format(checkpoint.model_checkpoint_path))
+    else:
+        print("Could not find old checkpoint")
 
-  scene_stats = dict()
-  for scene_scope in scene_scopes:
+    scene_stats = dict()
+    for scene_scope in scene_scopes:
+        # TODO: remove
+        scene_scope = "FloorPlan227"
+        scene_stats[scene_scope] = []
+        for task_scope in list_of_tasks[scene_scope]:
+            # tasks are positions!!!
+            # env = ai2thor.controller.Controller(scene="FloorPlan227", gridSize=0.25, width=1000, height=1000)
+            with open(GOAL_FILE, 'r') as f:
+                GOAL_DATA = json.load(f)
 
-    scene_stats[scene_scope] = []
-    for task_scope in list_of_tasks[scene_scope]:
+            GOAL_POS = GOAL_DATA["agent_position"]
+            env = RLController({
+                'scene': scene_scope,
+                'terminal_state_id': int(task_scope),
+                'goal_pos': GOAL_POS,
+                'goal_image_fpath': "data/FP227_goal_TV.png"
+            })
+            ep_rewards = []
+            ep_lengths = []
+            ep_collisions = []
 
-      env = Environment({
-        'scene_name': scene_scope,
-        'terminal_state_id': int(task_scope)
-      })
-      ep_rewards = []
-      ep_lengths = []
-      ep_collisions = []
+            scopes = [network_scope, scene_scope]
 
-      scopes = [network_scope, scene_scope, task_scope]
+            for i_episode in range(NUM_EVAL_EPISODES):
+                env.reset()
 
-      for i_episode in range(NUM_EVAL_EPISODES):
+                terminal = False
+                ep_reward = 0
+                ep_collision = 0
+                ep_t = 0
 
-        env.reset()
-        terminal = False
-        ep_reward = 0
-        ep_collision = 0
-        ep_t = 0
+                while not terminal:
+                    # mirrors actions taken in paper
+                    # NOTE: rearranged these to mirror code in scene_loader
+                    list_of_actions = ["MoveAhead", "RotateRight", "RotateLeft", "MoveBack"]
 
-        while not terminal:
-          pi_values = global_network.run_policy(sess, env.s_t, env.target, scopes)
-          action = sample_action(pi_values)
-          env.step(action)
-          env.update()
+                    pi_values = global_network.run_policy(sess, env.curr_state, env.target, scopes)
+                    # action returned is an integer -- critical that the list_of_actions is in correct order
+                    action = sample_action(pi_values)
+                    print("Ep_t: {} Collided?: {} Action: {} Value: {} All_action_values: {}".format(ep_t, env.collided, list_of_actions[action], pi_values[action], pi_values))
+                    env.step(list_of_actions[action])
+                    env.update()
 
-          terminal = env.terminal
-          if ep_t == 10000: break
-          if env.collided: ep_collision += 1
-          ep_reward += env.reward
-          ep_t += 1
+                    terminal = env.terminal
+                    if ep_t == 10000: break
 
-        ep_lengths.append(ep_t)
-        ep_rewards.append(ep_reward)
-        ep_collisions.append(ep_collision)
-        if VERBOSE: print("episode #{} ends after {} steps".format(i_episode, ep_t))
+                    if env.collided: ep_collision += 1
+                    ep_reward += env.reward
+                    ep_t += 1
+                print("we're done")
 
-      print('evaluation: %s %s' % (scene_scope, task_scope))
-      print('mean episode reward: %.2f' % np.mean(ep_rewards))
-      print('mean episode length: %.2f' % np.mean(ep_lengths))
-      print('mean episode collision: %.2f' % np.mean(ep_collisions))
-
-      scene_stats[scene_scope].extend(ep_lengths)
-      break
-    break
-
-print('\nResults (average trajectory length):')
-for scene_scope in scene_stats:
-  print('%s: %.2f steps'%(scene_scope, np.mean(scene_stats[scene_scope])))
+if __name__ == "__main__":
+    main()

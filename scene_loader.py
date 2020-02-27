@@ -73,6 +73,7 @@ class THORDiscreteEnvironment(object):
   def step(self, action):
     assert not self.terminal, 'step() called in terminal state'
     k = self.current_state_id
+    # id are just the indexes through the states, that's all. each elem is a state
     if self.transition_graph[k][action] != -1:
       self.current_state_id = self.transition_graph[k][action]
       if self.terminals[self.current_state_id]:
@@ -86,6 +87,10 @@ class THORDiscreteEnvironment(object):
       self.collided = True
 
     self.reward = self._reward(self.terminal, self.collided)
+    # s_t here, the curr_state, is actually the state before the step. self.state returns the state after the step. some weird
+    #   combo of these is used to make s_t1 (the next state). Then after, step() is completed, update() is called  where
+    #   s_t <-- s_t1
+    # note that self.state() returns the ResNet feature, which is what we will need to get from the observation
     self.s_t1 = np.append(self.s_t[:,1:], self.state, axis=1)
 
   def update(self):
@@ -95,8 +100,8 @@ class THORDiscreteEnvironment(object):
 
   def _tiled_state(self, state_id):
     k = random.randrange(self.n_feat_per_locaiton)
-    f = self.h5_file['resnet_feature'][state_id][k][:,np.newaxis]
-    return np.tile(f, (1, self.history_length))
+    f = self.h5_file['resnet_feature'][state_id][k][:,np.newaxis] # f is some portion of the RestNet features
+    return np.tile(f, (1, self.history_length)) # Repeats f (1, self.history_length) times
 
   def _reward(self, terminal, collided):
     # positive reward upon task completion
@@ -113,16 +118,17 @@ class THORDiscreteEnvironment(object):
 
   @property
   def action_definitions(self):
-    action_vocab = ["MoveForward", "RotateRight", "RotateLeft", "MoveBackward"]
+    action_vocab = ["MoveForward", "RotateRight", "RotateLeft", "MoveBackward"]  # TODO: whoops I think this is the order we want?
     return action_vocab[:ACTION_SIZE]
 
   @property
-  def observation(self):
+  def observation(self):  # this is the RGB image of the agent's first person view
     return self.h5_file['observation'][self.current_state_id]
 
   @property
   def state(self):
     # read from hdf5 cache
+    # "we extracted 10 features from the proximity of each location coordinates -- we sampled a small Gaussian offset from the (x,y) coordinates"
     k = random.randrange(self.n_feat_per_locaiton)
     return self.h5_file['resnet_feature'][self.current_state_id][k][:,np.newaxis]
 
