@@ -11,10 +11,12 @@ import random
 import sys
 import json
 
+
 from network import ActorCriticFFNetwork
 from training_thread import A3CTrainingThread
 
 from utils.ops import sample_action
+from utils.tools import SimpleImageViewer
 
 from constants import ACTION_SIZE
 from constants import CHECKPOINT_DIR
