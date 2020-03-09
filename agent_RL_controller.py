@@ -65,9 +65,9 @@ class RLController :
         assert not self.terminal, 'step() called in terminal state'
         curr_pos = event.metadata["agent"]["position"]
 
-        # TODO: this will never be reached in current code due to goal position not being in all scenes;
-        #  need to figure out key id system in OG code so we can either adopt it or can it
-        if curr_pos == self.goal_pos:
+        # NOTE: assumes target is in scene
+        # TODO: account for rotation of agent
+        if curr_pos.items() == self.goal_pos.items():
             self.terminal = True
 
         self.collided = event.metadata["collided"]
