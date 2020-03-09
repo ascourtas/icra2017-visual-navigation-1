@@ -70,7 +70,8 @@ class RLController :
         if curr_pos.items() == self.goal_pos.items():
             self.terminal = True
 
-        self.collided = event.metadata["collided"]
+        # self.collided = event.metadata["collided"]
+        self.collided = event.metadata["lastActionSuccess"]
         self.reward = self._reward()
 
         # TODO: update the "state" to the observation at where we've just stepped to
