@@ -52,7 +52,7 @@ def key_press(key, mod):
     invert_view = not invert_view
 
 
-def rollout(event, controller, viewer):
+def rollout(event, controller, viewer, scene_name):
 
   global human_agent_action, human_wants_restart, stop_requested, take_picture, invert_view
   human_agent_action = None
@@ -60,6 +60,7 @@ def rollout(event, controller, viewer):
   stop_requested = False
   take_picture = False
   invert_view = False
+
   while True:
     # waiting for keyboard input
     if human_agent_action is not None:
@@ -70,7 +71,7 @@ def rollout(event, controller, viewer):
     # waiting for reset command
     if human_wants_restart:
       # reset agent to random location
-      controller.reset(scene='FloorPlan227')
+      controller.reset(scene=scene_name)
       human_wants_restart = False
 
     # check collision
@@ -83,13 +84,15 @@ def rollout(event, controller, viewer):
 
     if take_picture:
       current_image = event.cv2image()
-      cv2.imwrite("data/FP227_goal_TV.png", current_image)
+      cv2.imwrite("data/{}_goal.png".format(scene_name), current_image)
       json_dict = {}
       agent_position = event.metadata["agent"]["position"]
+      agent_rotation = event.metadata['agent']['rotation']
       json_dict["grid_size"] = GRID_SIZE
       json_dict["agent_position"] = agent_position
+      json_dict["agent_rotation"] = agent_rotation
 
-      with open('data/FP227_goal_TV.json', 'w') as outfile:
+      with open('data/{}_goal.json'.format(scene_name), 'w') as outfile:
         json.dump(json_dict, outfile)
 
     if invert_view and event.depth_frame is not None:
@@ -102,8 +105,10 @@ def rollout(event, controller, viewer):
       viewer.imshow(event.frame)
 
 if __name__ == '__main__':
+  # scene_name = 'FloorPlan227'
+  scene_name = 'FloorPlan402'
 
-  controller = ai2thor.controller.Controller(scene='FloorPlan227', gridSize=0.25, width=1000, height=1000, renderDepthImage=True);
+  controller = ai2thor.controller.Controller(scene=scene_name, gridSize=0.25, width=1000, height=1000, renderDepthImage=True);
   event = controller.step(action='Pass') # Perform no action
 
   human_agent_action = None
@@ -123,6 +128,6 @@ if __name__ == '__main__':
   print("Press R to reset agent\'s location.")
   print("Press F to quit.")
 
-  rollout(event, controller, viewer)
+  rollout(event, controller, viewer, scene_name)
 
   print("Goodbye.")

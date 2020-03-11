@@ -26,7 +26,7 @@ from constants import VERBOSE
 from constants import TASK_TYPE
 from constants import TASK_LIST
 
-GOAL_FILE = "data/FP227_goal_TV.json"
+GOAL_FILE = "data/FP402_goal_towel.json"
 GOAL_POS = None
 
 def main():
@@ -61,7 +61,7 @@ def main():
     scene_stats = dict()
     for scene_scope in scene_scopes:
         # TODO: remove
-        scene_scope = "FloorPlan227"
+        scene_scope = "FloorPlan402"
         scene_stats[scene_scope] = []
         for task_scope in list_of_tasks[scene_scope]:
             # tasks are positions!!!
@@ -74,7 +74,7 @@ def main():
                 'scene': scene_scope,
                 'terminal_state_id': int(task_scope),
                 'goal_pos': GOAL_POS,
-                'goal_image_fpath': "data/FP227_goal_TV.png"
+                'goal_image_fpath': "data/FP402_goal_towel.png"
             })
             ep_rewards = []
             ep_lengths = []
@@ -97,9 +97,11 @@ def main():
 
                     pi_values = global_network.run_policy(sess, env.curr_state, env.target, scopes)
                     # action returned is an integer -- critical that the list_of_actions is in correct order
+
                     action = sample_action(pi_values)
                     print("Ep_t: {} Collided?: {} Action: {} Value: {} All_action_values: {}".format(ep_t, env.collided, list_of_actions[action], pi_values[action], pi_values))
                     env.step(list_of_actions[action])
+
                     env.update()
 
                     terminal = env.terminal
