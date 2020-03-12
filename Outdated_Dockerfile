@@ -1,0 +1,28 @@
+# Use the official image as a parent image
+FROM gableroux/unity3d
+
+# Set the working directory
+WORKDIR .
+
+RUN python3 --version
+
+# RUN apt update & apt install software-properties-common & add-apt-repository ppa:deadsnakes/ppa & apt update & apt install python3.7
+RUN apt-get update && apt-get install curl
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+RUN python3 get-pip.py
+# Copy the file from your host to your current location
+COPY requirements.txt .
+
+# Run the command inside your image filesystem
+RUN pip3 install -r requirements.txt
+
+COPY . .
+
+# Inform Docker that the container is listening on the specified port at runtime.
+EXPOSE 8080
+
+# Run the specified command within the container.
+CMD [ "python", "bot_agent.py" ]
+
+# # Copy the rest of your app's source code from your host to your image filesystem.
+# COPY . .
