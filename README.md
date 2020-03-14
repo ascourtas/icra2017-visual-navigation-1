@@ -1,6 +1,8 @@
 # Target-driven Visual Navigation Model using Deep Reinforcement Learning
-[Docker Image](https://hub.docker.com/repository/docker/denmonz/ai2thor)<br>
-[Dockerfile](Dockerfile)
+* [Docker Image](https://hub.docker.com/repository/docker/denmonz/ai2thor)<br>
+* [Dockerfile](Dockerfile)
+* [Original Repository](https://github.com/yushu-liu/icra2017-visual-navigation)
+* [Downloading Pretrained Model Objects](#downloading-pretrained-model-objects)
 
 ## Problem Statement
 
@@ -17,7 +19,9 @@ The agent aims for environmental, goal/target, and real-world generalizability. 
   <em>Image retrieved from Zhu et. al., 2017.</em>
 </p>
 
-## Input and Output
+Taking as input both the observations and goals, the deep siamese actor-critic network captures an understanding of relative spatial positions as well as general scene layout. The asynchronous aspect of the model enables it to learn new scenes quickly; the more scenes the model trains on, the better it performs in unknown scenes since scene-specific layers of the model share the same model parameters (see paper).
+
+### Input and Output
 
 The model takes as input an observation and goal image, both of size (224x224x3), and the output is one of the four following actions to be taken by the agent at any time step: "Move Ahead", "Rotate Right", "Rotate Left", "Move Back".
 We extract feature maps of the input images via the second to last layer of ResNet 50 (by utilizing [Keras](https://keras.io/applications/#resnet)). These features are dimensionally reduced representations of the original images, and are used for the deep learning component of our model.
@@ -30,13 +34,12 @@ We extract feature maps of the input images via the second to last layer of ResN
 ## Setup
 The code utilizes [Tensorflow API r2.0](https://www.tensorflow.org/api_docs/), but is backwards compatible with all Tensorflow 1.0 methods from the original repository. The project was built and tested on macOS Mojave (10.14.6) using Python 3.7.6, but running the project via Docker should eliminate any OS-dependent issues. For the full list of dependencies, see the `requirements.txt` file at the root of this repo. 
 
-### Getting h5 Files
+### Downloading Pretrained Model Objects
 This repo utilizes a pretrained A3C model, with all important model object information encoded in [hdf5](http://www.h5py.org/) dumps. To download the h5 dumps, first ensure that you have the `wget` utility installed -- here are installation instructions for [Linux distros](https://www.tecmint.com/install-wget-in-linux/) and [macOS (Homebrew install recommended)](https://www.fossmint.com/install-and-use-wget-on-mac/). 
 
 Then, run the following from the root of the repository:
 ```
-bash
-./data/download_scene_dumps.sh
+bash ./data/download_scene_dumps.sh
 ```
 The h5 files should be located in the `/data` folder.
 
@@ -52,17 +55,18 @@ docker --version
 docker build -t ai2thor:1.0.0 .
 ```
 
-## Running the model
-We utilize a pre-trained model from the original repository, therefore training is unnecessary. The following instructions are for running the evaluation of said model. The output of the stats on each episode will be displayed in the terminal.
+## Running the Model
+We utilize a pre-trained model from the original repository, therefore training is unnecessary. The following instructions are for running the evaluation of said model.
 
-Run the Docker container (note that it may take >30 min before evaluation stats are printed):
+Run the Docker container (note that it may take >45 min before evaluation stats are printed):
 ```
 docker run ai2thor:1.0.0
 ```
+The output of the stats on each episode will be displayed in the terminal.
 
 ## Other Utilities
 
-We've provided a modified `keyboard_agent.py` script that allows you to load a scene dump and use the arrow keys to navigate a scene. The script also lets you take screenshots to use as target images for your own evaluations, or capture depth images if you wish to experiment with those. 
+We've provided a modified `keyboard_agent.py` script that allows you to load an AI2Thor scene dump and use the arrow keys to navigate a scene. The script also lets you take screenshots to use as target images for your own evaluations, or capture depth images if you wish to experiment with those. 
 
 The commands are:
 > Use WASD keys to move the agent.<br>
@@ -80,25 +84,10 @@ python keyboard_agent.py
 ```
 This should open an AI2-THOR window for you to navigate within. 
 
-## Training and Evaluation
-The parameters for training and evaluation are defined in ```constants.py```. The most important parameter is ```TASK_LIST```, which is a dictionary that defines the scenes and targets to be trained and evaluated on. The keys of the dictionary are scene names, and the values are a list of location ids in the scene dumps, i.e., navigation targets. We use a type of asynchronous advantage actor-critic model, similar to [A3C](https://arxiv.org/abs/1602.01783), where each thread trains for one target of one scene. Therefore, make sure the number of training threads ```PARALLEL_SIZE``` is *at least* the same as the total number of targets. You can use more threads to further parallelize training. For instance, when using 8 threads to train 4 targets, 2 threads will be allocated to train each target.
-
-The model checkpoints are stored to ```CHECKPOINT_DIR```, and Tensorboard logs are written in ```LOG_FILE```. To train a target-driven navigation model, run the following script:
-```bash
-# train a model for targets defined in TASK_LIST
-python train.py
-```
-
-For evaluation, we run 100 episodes for each target and report the mean/stddev length of the navigation trajectories. To evaluate a model checkpoint in ```CHECKPOINT_DIR```, run the following script:
-```bash
-# evaluate a checkpoint on targets defined in TASK_LIST
-python evaluate.py
-```
-
 ## Our Amendments
-* Upgrades the agent's original AI2Thor environment to the latest AI2Thor environment.
+* Upgraded the agent's original AI2Thor environment to the latest AI2Thor environment.
 * Implemented online feature extraction for agent evaluation.
-* Updated keyboard_agent.py to navigate the new environment and capture goal images.
+* Updated keyboard_agent.py to navigate the new environment and capture RGB and depth images.
 
 ## Future Work
 * Cache ResNet50 features for quicker training and evaluation.
