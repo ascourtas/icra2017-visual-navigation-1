@@ -70,8 +70,8 @@ class RLController :
         if curr_pos.items() == self.goal_pos.items():
             self.terminal = True
 
-        # self.collided = event.metadata["collided"]
-        self.collided = event.metadata["lastActionSuccess"]
+        self.collided = event.metadata["collided"]
+        # self.collided = event.metadata["lastActionSuccess"]
         self.reward = self._reward()
 
         # TODO: update the "state" to the observation at where we've just stepped to
@@ -84,7 +84,6 @@ class RLController :
         # note that self.state() returns the ResNet feature, which is what we will need to get from the observation
         self.state = event
         self.next_state = np.append(self.curr_state[:, 1:], self.state, axis=1)
-        print("biasdhaiu")
 
     def update(self):
         self.curr_state = self.next_state

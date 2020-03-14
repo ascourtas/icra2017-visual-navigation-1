@@ -76,6 +76,7 @@ def main():
                 'goal_pos': GOAL_POS,
                 'goal_image_fpath': "data/FP402_goal_towel.png"
             })
+            env.docker_enabled = True
             ep_rewards = []
             ep_lengths = []
             ep_collisions = []
@@ -99,7 +100,7 @@ def main():
                     # action returned is an integer -- critical that the list_of_actions is in correct order
 
                     action = sample_action(pi_values)
-                    print("Ep_t: {} Collided?: {} Action: {} Value: {} All_action_values: {}".format(ep_t, env.collided, list_of_actions[action], pi_values[action], pi_values))
+                    print("Ep_t: {} \n\tCollided?: {} \n\tAction: {} \n\tValue: {} \n\tAll Action Values: {}".format(ep_t, env.collided, list_of_actions[action], pi_values[action], pi_values))
                     env.step(list_of_actions[action])
 
                     env.update()
@@ -110,7 +111,15 @@ def main():
                     if env.collided: ep_collision += 1
                     ep_reward += env.reward
                     ep_t += 1
-                print("we're done")
+
+                    ep_lengths.append(ep_t)
+                    ep_rewards.append(ep_reward)
+                    ep_collisions.append(ep_collision)
+
+                print('evaluation: %s %s' % (scene_scope, task_scope))
+                print('mean episode reward: %.2f' % np.mean(ep_rewards))
+                print('mean episode length: %.2f' % np.mean(ep_lengths))
+                print('mean episode collision: %.2f' % np.mean(ep_collisions))
 
 if __name__ == "__main__":
     main()
