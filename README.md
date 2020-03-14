@@ -12,7 +12,8 @@ Indoor visual navigation has many challenges. Where do you get the training data
 The agent aims for environmental, goal/target, and real-world generalizability. The original agent utilized the first version of AI2Thor, and we transitioned the agent into the latest version of [AI2Thor](https://ai2thor.allenai.org/).
 
 <p align="center">
-  <img src="/images/model.png" data-canonical-src="/images/networkArchitecture.png" width="450"/>
+  <img src="/images/model.png" data-canonical-src="/images/networkArchitecture.png" width="450"/><br>
+  <em>Image retrieved from Zhu et. al., 2017.</em>
 </p>
 
 ## Input and Output
@@ -21,7 +22,8 @@ The model takes as input an observation and goal image, both of size (224x224x3)
 We extract feature maps of the input images via the second to last layer of ResNet 50 (by utilizing [Keras](https://keras.io/applications/#resnet)). These features are dimensionally reduced representations of the original images, and are used for the deep learning component of our model.
 
 <p align="center">
-  <img src="/images/networkArchitecture.png" data-canonical-src="/images/networkArchitecture.png" width="450"/>
+  <img src="/images/networkArchitecture.png" data-canonical-src="/images/networkArchitecture.png" width="450"/><br>
+  <em>Image retrieved from Zhu et. al., 2017.</em>
 </p>
 
 ## Setup
