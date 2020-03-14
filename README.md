@@ -1,4 +1,4 @@
-### Target-driven Visual Navigation Model using Deep Reinforcement Learning
+# Target-driven Visual Navigation Model using Deep Reinforcement Learning
 
 ## Problem Statement
 
