@@ -1,4 +1,5 @@
 # Target-driven Visual Navigation Model using Deep Reinforcement Learning
+#### By: Aristana Scourtas and Zane Denmon
 * [Docker Image](https://hub.docker.com/repository/docker/denmonz/ai2thor)<br>
 * [Dockerfile](Dockerfile)
 * [Original Repository](https://github.com/yushu-liu/icra2017-visual-navigation)
