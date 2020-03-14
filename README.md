@@ -1,16 +1,19 @@
-## Target-driven Visual Navigation Model using Deep Reinforcement Learning
+### Target-driven Visual Navigation Model using Deep Reinforcement Learning
 
-![THOR scene samples](http://web.stanford.edu/~yukez/images/img/thor_examples.png "THOR scene samples")
+## Problem Statement
 
-## Introduction
-
-This repocitory provides a Tensorflow implementation of the deep siamese actor-critic model for indoor scene navigation introduced in the following paper:
-
-**[Target-driven Visual Navigation in Indoor Scenes using Deep Reinforcement Learning](http://web.stanford.edu/~yukez/papers/icra2017.pdf)**
+Indoor visual navigation has many challenges. Where do you get the training data? How can you guarantee that your agent will generalize well? How can you ensure your agent will adapt well to dynamic environments? Our project is built off of the deep siamese actor-critic model introduced in the following paper:  <br><br>**[Target-driven Visual Navigation in Indoor Scenes using Deep Reinforcement Learning](https://arxiv.org/abs/1609.05143)**
 <br>
 [Yuke Zhu](http://web.stanford.edu/~yukez/), Roozbeh Mottaghi, Eric Kolve, Joseph J. Lim, Abhinav Gupta, Li Fei-Fei, and Ali Farhadi
 <br>
 [ICRA 2017, Singapore](http://www.icra2017.org/)
+<br><br>
+The agent aims for environmental, goal/target, and real-world generalizability. The original agent utilized the first version of AI2Thor, and we transitioned the agent into the latest version of [AI2Thor](https://ai2thor.allenai.org/).
+
+## Input and Output
+
+The model takes as input an observation and goal image, both of size (224x224x3), and the output is one of the four following actions to be taken by the agent at any time step: "Move Ahead", "Rotate Right", "Rotate Left", "Move Back".
+We extract feature maps of the input images via the second to last layer of ResNet 50 (by utilizing [Keras](https://keras.io/applications/#resnet)). These features are dimensionally reduced representations of the original images, and are used for the deep learning component of our model. 
 
 ## Setup
 This code is implemented in [Tensorflow API r1.0](https://www.tensorflow.org/api_docs/). You can follow the [online instructions](https://www.tensorflow.org/install/) to install Tensorflow 1.0. Other dependencies ([h5py](http://www.h5py.org/), [numpy](http://www.numpy.org/), [scikit-image](http://scikit-image.org/), [pyglet](https://bitbucket.org/pyglet/pyglet/wiki/Home)) can be install by [pip](https://pypi.python.org/pypi/pip): ```pip install -r requirements.txt```. This code has been tested with Python 2.7 and 3.5.
