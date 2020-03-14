@@ -13,7 +13,7 @@ The agent aims for environmental, goal/target, and real-world generalizability. 
 ## Input and Output
 
 The model takes as input an observation and goal image, both of size (224x224x3), and the output is one of the four following actions to be taken by the agent at any time step: "Move Ahead", "Rotate Right", "Rotate Left", "Move Back".
-We extract feature maps of the input images via the second to last layer of ResNet 50 (by utilizing [Keras](https://keras.io/applications/#resnet)). These features are dimensionally reduced representations of the original images, and are used for the deep learning component of our model. 
+We extract feature maps of the input images via the second to last layer of ResNet 50 (by utilizing [Keras](https://keras.io/applications/#resnet)). These features are dimensionally reduced representations of the original images, and are used for the deep learning component of our model.
 
 ## Setup
 This code is implemented in [Tensorflow API r1.0](https://www.tensorflow.org/api_docs/). You can follow the [online instructions](https://www.tensorflow.org/install/) to install Tensorflow 1.0. Other dependencies ([h5py](http://www.h5py.org/), [numpy](http://www.numpy.org/), [scikit-image](http://scikit-image.org/), [pyglet](https://bitbucket.org/pyglet/pyglet/wiki/Home)) can be install by [pip](https://pypi.python.org/pypi/pip): ```pip install -r requirements.txt```. This code has been tested with Python 2.7 and 3.5.
@@ -55,6 +55,15 @@ For evaluation, we run 100 episodes for each target and report the mean/stddev l
 # evaluate a checkpoint on targets defined in TASK_LIST
 python evaluate.py
 ```
+
+## Our Amendments
+* Upgrades the agent's original AI2Thor environment to the latest AI2Thor environment.
+* Implemented online feature extraction for agent evaluation.
+* Updated keyboard_agent.py to navigate the new environment and capture goal images.
+
+## Future Work
+* Cache ResNet50 features for quicker training and evaluation.
+* Replace ResNet for RedNet and utilize depth as input to the model.
 
 ## Acknowledgements
 I would like to acknowledge the following references that have offered great help for me to implement the model.
