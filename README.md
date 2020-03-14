@@ -77,23 +77,5 @@ python evaluate.py
 * Cache ResNet50 features for quicker training and evaluation.
 * Replace ResNet for RedNet and utilize depth as input to the model.
 
-## Acknowledgements
-I would like to acknowledge the following references that have offered great help for me to implement the model.
-* ["Asynchronous Methods for Deep Reinforcement Learning", Mnih et al., 2016](https://arxiv.org/abs/1602.01783)
-* [David Silver's Deep RL course](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html)
-* [muupan's async-rl repo](https://github.com/muupan/async-rl/wiki)
-* [miyosuda's async_deep_reinforce repo](https://github.com/miyosuda/async_deep_reinforce)
-
-## Citation
-Please cite our ICRA'17 paper if you find this code useful for your research.
-```
-@InProceedings{zhu2017icra,
-  title = {{Target-driven Visual Navigation in Indoor Scenes using Deep Reinforcement Learning}},
-  author = {Yuke Zhu and Roozbeh Mottaghi and Eric Kolve and Joseph J. Lim and Abhinav Gupta and Li Fei-Fei and Ali Farhadi},
-  booktitle = {{IEEE International Conference on Robotics and Automation}},
-  year = 2017,
-}
-```
-
 ## License
 MIT
