@@ -3,6 +3,8 @@ import cv2
 import keras.applications as ka
 from keras.preprocessing import image
 from keras.applications.resnet50 import preprocess_input
+import tensorflow.compat.v1 as tf
+from tensorflow.compat.v1.keras.backend import set_session
 import numpy as np
 import random
 import ssl
@@ -49,6 +51,8 @@ class RLController :
         # self.s_target = self._tiled_state(self.terminal_state_id)
         self.s_target = self._tiled_state(self.goal_image)
 
+
+
     def reset(self):
         # TODO: Check if goal state is reachable
         self.env.reset(self.scene)
@@ -70,8 +74,8 @@ class RLController :
         if curr_pos.items() == self.goal_pos.items():
             self.terminal = True
 
-        # self.collided = event.metadata["collided"]
-        self.collided = event.metadata["lastActionSuccess"]
+        self.collided = event.metadata["collided"]
+        # self.collided = event.metadata["lastActionSuccess"]
         self.reward = self._reward()
 
         # TODO: update the "state" to the observation at where we've just stepped to
@@ -84,7 +88,6 @@ class RLController :
         # note that self.state() returns the ResNet feature, which is what we will need to get from the observation
         self.state = event
         self.next_state = np.append(self.curr_state[:, 1:], self.state, axis=1)
-        print("biasdhaiu")
 
     def update(self):
         self.curr_state = self.next_state
@@ -104,8 +107,12 @@ class RLController :
         return -0.1 if self.collided else -0.01
 
     def _feature_for_image(self, state_image):
-        # TODO: should this be regular ResNet50?
-        # model = ka.resnet_v2.ResNet50V2(include_top=False, weights='imagenet', pooling='max', input_shape=(224, 224, 3))
+        # try to limit threads in attempt to stop Keras from hanging in Docker (as of now, not useful)
+        config = tf.ConfigProto()
+        config.intra_op_parallelism_threads = 1
+        config.inter_op_parallelism_threads = 1
+        set_session(tf.Session(config=config))
+
         model = ka.resnet.ResNet50(include_top=False, weights='imagenet', pooling='max', input_shape=(224, 224, 3))
 
         # get features from the state image

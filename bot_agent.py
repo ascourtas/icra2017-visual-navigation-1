@@ -1,7 +1,10 @@
+print("at the tippity top")
+
 import ai2thor.controller
 import pprint
 import cv2
 import numpy as np
+import subprocess
 
 
 # TODO: account for rotation as well (like with floor lamp)
@@ -27,9 +30,15 @@ def get_goal_position(goal_object_position, reachable_positions):
 
     return final_pos
 
+print("Before controller")
+# subprocess.call(['startx'])
+process = subprocess.Popen(['xdpyinfo'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
+stdout = process.communicate()[0]
+print('STDOUT:{}'.format(stdout))
 # the floor plan names correspond to those in constants.py
 controller = ai2thor.controller.Controller(scene='FloorPlan227', gridSize=0.25, width=1000, height=1000)
+# controller.docker_enabled = True
 
 # # TV position is {'x': -3.503, 'y': 1.506, 'z': 0.001}
 goal_object = {"name": "TV", "position": {'x': -3.503, 'y': 1.506, 'z': 0.001}}
