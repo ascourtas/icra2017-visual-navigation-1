@@ -13,30 +13,57 @@ This repocitory provides a Tensorflow implementation of the deep siamese actor-c
 [ICRA 2017, Singapore](http://www.icra2017.org/)
 
 ## Setup
-This code is implemented in [Tensorflow API r1.0](https://www.tensorflow.org/api_docs/). You can follow the [online instructions](https://www.tensorflow.org/install/) to install Tensorflow 1.0. Other dependencies ([h5py](http://www.h5py.org/), [numpy](http://www.numpy.org/), [scikit-image](http://scikit-image.org/), [pyglet](https://bitbucket.org/pyglet/pyglet/wiki/Home)) can be install by [pip](https://pypi.python.org/pypi/pip): ```pip install -r requirements.txt```. This code has been tested with Python 2.7 and 3.5.
+The code utilizes [Tensorflow API r2.0](https://www.tensorflow.org/api_docs/), but is backwards compatible with all Tensorflow 1.0 methods from the original repository. The project was built and tested on macOS Mojave (10.14.6) using Python 3.7.6, but running the project via Docker should eliminate any OS-dependent issues. For the full list of dependencies, see the `requirements.txt` file at the root of this repo. 
 
-## Scenes
-To facilitate training, we provide [hdf5](http://www.h5py.org/) dumps of the simulated scenes. Each dump contains the agent's first-person observations sampled from a discrete grid in four cardinal directions. To be more specific, each dump stores the following information row by row:
+### Getting h5 Files
+This repo utilizes a pretrained A3C model, with all important model object information encoded in [hdf5](http://www.h5py.org/) dumps. To download the h5 dumps, first ensure that you have the `wget` utility installed -- here are installation instructions for [Linux distros](https://www.tecmint.com/install-wget-in-linux/) and [macOS (Homebrew install recommended)](https://www.fossmint.com/install-and-use-wget-on-mac/). 
 
-* **observation**: 300x400x3 RGB image (agent's first-person view)
-* **resnet_feature**: 2048-d [ResNet-50](https://arxiv.org/abs/1512.03385) feature extracted from the observations
-* **location**: (x, y) coordinates of the sampled scene locations on a discrete grid with 0.5-meter offset
-* **rotation**: agent's rotation in one of the four cardinal directions, 0, 90, 180, and 270 degrees
-* **graph**: a state-action transition graph, where ```graph[i][j]``` is the location id of the destination by taking action ```j``` in location ```i```, and ```-1``` indicates collision while the agent stays in the same place.
-* **shortest_path_distance**: a square matrix of shortest path distance (in number of steps) between pairwise locations, where ```-1``` means two states are unreachable from each other.
-
-Before running the code, please download the scene dumps using the following script:
-```bash
+Then, run the following from the root of the repository:
+```
+bash
 ./data/download_scene_dumps.sh
 ```
-We are currently releasing one scene from each of the four scene categories, *bathroom*, *bedroom*, *kitchen*, and *living room*. Please contact me for information about additional scenes.
-A ```keyboard_agent.py``` script is provided. This script allows you to load a scene dump and use the arrow keys to navigate a scene. To run the script, here is an example command:
-```bash
-# make sure the scene dump is in the data folder, e.g., ./data/bedroom_04.h5
-python keyboard_agent.py --scene_dump ./data/bedroom_04.h5
+The h5 files should be located in the `/data` folder.
+
+If `wget` does not install properly, you can always download the files by clicking [here](http://vision.stanford.edu/yukezhu/thor_v1_scene_dumps.zip), unzipping the download, and moving the files to the `/data` folder. You should then rerun the above bash script to rename the files appropriately. 
+
+### Using Docker 
+1. Ensure you have Docker installed. See the [Docker installation instructions](https://docs.docker.com/install/) for more details; you would use the Desktop version for macOS or Windows, and the Server version for Linux distros. Check that Docker installed properly by running the following in your terminal:
+```
+docker --version
+```
+2. From the root of the repository, run the following to build the Docker image (note this may take a while):
+```
+docker build -t ai2thor:1.0.0 .
 ```
 
-These scene dumps enable us to train a (discrete) navigation agent without running the simulator during training or extracting ResNet features. Thus, it greatly improves training efficiency. The training code runs comfortably on CPUs (of my Macbook Pro). Due to legal concerns, our THOR simulator will be released later.
+## Running the model
+We utilize a pre-trained model from the original repository, therefore training is unnecessary. The following instructions are for running the evaluation of said model. The output of the stats on each episode will be displayed in the terminal.
+
+Run the Docker container (note that it may take >30 min before evaluation stats are printed):
+```
+docker run ai2thor:1.0.0
+```
+
+## Other Utilities
+
+We've provided a modified `keyboard_agent.py` script that allows you to load a scene dump and use the arrow keys to navigate a scene. The script also lets you take screenshots to use as target images for your own evaluations, or capture depth images if you wish to experiment with those. 
+
+The commands are:
+> Use WASD keys to move the agent.<br>
+> Use QE keys to move the camera.<br>
+> Press I to switch between RGB and Depth views.<br>
+> Press P to save an image of the current view.<br>
+> Press R to reset agent's location.<br>
+> Press F to quit.
+
+We have not created a Docker environment to run this, but feel free to explore this utility by installing the dependencies on your local machine. To run the script, [install Python 3.7.6](https://www.python.org/downloads/), [`pip`](https://pip.pypa.io/en/stable/installing/), and download the dependencies outlined in `requirements.txt` by running `pip install -r requirements.txt`. Then, install [Unity via Unity Hub](https://unity3d.com/get-unity/download). 
+
+Start the utility via:
+```
+python keyboard_agent.py 
+```
+This should open an AI2-THOR window for you to navigate within. 
 
 ## Training and Evaluation
 The parameters for training and evaluation are defined in ```constants.py```. The most important parameter is ```TASK_LIST```, which is a dictionary that defines the scenes and targets to be trained and evaluated on. The keys of the dictionary are scene names, and the values are a list of location ids in the scene dumps, i.e., navigation targets. We use a type of asynchronous advantage actor-critic model, similar to [A3C](https://arxiv.org/abs/1602.01783), where each thread trains for one target of one scene. Therefore, make sure the number of training threads ```PARALLEL_SIZE``` is *at least* the same as the total number of targets. You can use more threads to further parallelize training. For instance, when using 8 threads to train 4 targets, 2 threads will be allocated to train each target.
