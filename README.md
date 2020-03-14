@@ -1,5 +1,5 @@
 # Target-driven Visual Navigation Model using Deep Reinforcement Learning
-[Docker](https://hub.docker.com/repository/docker/denmonz/ai2thor)
+[Docker Image](https://hub.docker.com/repository/docker/denmonz/ai2thor)
 
 ## Problem Statement
 
