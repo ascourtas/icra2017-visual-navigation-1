@@ -91,7 +91,7 @@ This should open an AI2-THOR window for you to navigate within.
 
 ## Future Work
 * Cache ResNet50 features for quicker training and evaluation.
-* Replace ResNet for RedNet and utilize depth as input to the model.
+* Replace ResNet for [RedNet](https://arxiv.org/abs/1806.01054) and utilize depth as input to the model.
 
 ## License
 MIT
