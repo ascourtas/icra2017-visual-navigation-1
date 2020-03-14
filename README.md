@@ -11,6 +11,10 @@ Indoor visual navigation has many challenges. Where do you get the training data
 <br><br>
 The agent aims for environmental, goal/target, and real-world generalizability. The original agent utilized the first version of AI2Thor, and we transitioned the agent into the latest version of [AI2Thor](https://ai2thor.allenai.org/).
 
+<p align="center">
+  <img src="/images/model.png" data-canonical-src="/images/networkArchitecture.png" width="450"/>
+</p>
+
 ## Input and Output
 
 The model takes as input an observation and goal image, both of size (224x224x3), and the output is one of the four following actions to be taken by the agent at any time step: "Move Ahead", "Rotate Right", "Rotate Left", "Move Back".
