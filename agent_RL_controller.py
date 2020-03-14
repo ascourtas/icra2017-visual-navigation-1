@@ -3,6 +3,8 @@ import cv2
 import keras.applications as ka
 from keras.preprocessing import image
 from keras.applications.resnet50 import preprocess_input
+import tensorflow.compat.v1 as tf
+from tensorflow.compat.v1.keras.backend import set_session
 import numpy as np
 import random
 import ssl
@@ -48,6 +50,8 @@ class RLController :
         self.next_state = np.zeros_like(self.curr_state)
         # self.s_target = self._tiled_state(self.terminal_state_id)
         self.s_target = self._tiled_state(self.goal_image)
+
+
 
     def reset(self):
         # TODO: Check if goal state is reachable
@@ -104,8 +108,12 @@ class RLController :
         return -0.1 if self.collided else -0.01
 
     def _feature_for_image(self, state_image):
-        # TODO: should this be regular ResNet50?
-        # model = ka.resnet_v2.ResNet50V2(include_top=False, weights='imagenet', pooling='max', input_shape=(224, 224, 3))
+        # try to limit threads in attempt to stop Keras from hanging in Docker (as of now, not useful)
+        config = tf.ConfigProto()
+        config.intra_op_parallelism_threads = 1
+        config.inter_op_parallelism_threads = 1
+        set_session(tf.Session(config=config))
+
         model = ka.resnet.ResNet50(include_top=False, weights='imagenet', pooling='max', input_shape=(224, 224, 3))
 
         # get features from the state image
